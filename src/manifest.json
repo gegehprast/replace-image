@@ -1,0 +1,41 @@
+{
+    "name": "Replace Image",
+    "description": "Chromium image replacer.",
+    "version": "0.0.18",
+    "manifest_version": 3,
+    "background": {
+        "service_worker": "background.js"
+    },
+    "declarative_net_request": {
+        "rule_resources": [
+            {
+                "id": "ruleset_1",
+                "enabled": true,
+                "path": "rules.json"
+            }
+        ]
+    },
+    "permissions": [
+        "contextMenus",
+        "declarativeNetRequest",
+        "declarativeNetRequestFeedback"
+    ],
+    "host_permissions": [
+        "https://*/*",
+        "http://*/*"
+    ],
+    "action": {
+        "default_icon": {
+            "16": "/images/anya.png",
+            "32": "/images/anya.png",
+            "48": "/images/anya.png",
+            "128": "/images/anya.png"
+        }
+    },
+    "icons": {
+        "16": "/images/anya.png",
+        "32": "/images/anya.png",
+        "48": "/images/anya.png",
+        "128": "/images/anya.png"
+    }
+}

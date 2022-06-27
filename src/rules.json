@@ -1,0 +1,16 @@
+[
+    {
+        "id": 1,
+        "priority": 1,
+        "action": {
+            "type": "redirect",
+            "redirect": {
+                "url": "https://buatsesuatu.dev/android-icon-192x192.png"
+            }
+        },
+        "condition": {
+            "regexFilter": "^(http)?s?:?(\/\/[^\"']*\\.(?:png|jpg|jpeg|gif|png|svg|webp)).*",
+            "resourceTypes": ["main_frame", "image"]
+        }
+    }
+]

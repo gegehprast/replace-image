@@ -4,7 +4,13 @@
   "description": "Chromium image replacer.",
   "main": "/",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-ts": "tsc",
+    "build": "npm run build-ts",
+    "postbuild": "npm run copyjson && npm run copyimages",
+    "cleanbuild": "rimraf build",
+    "copyjson": "copyfiles -f src/*.json build/",
+    "copyimages": "copyfiles -f src/images/*.png build/images"
   },
   "author": "gegehprast",
   "repository": {
@@ -13,6 +19,9 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/chrome": "^0.0.191",
+    "copyfiles": "^2.4.1",
+    "rimraf": "^3.0.2",
     "typescript": "^4.7.4"
   }
 }
