@@ -1,7 +1,7 @@
 {
     "name": "Replace Image",
     "description": "Chromium image replacer.",
-    "version": "0.0.18",
+    "version": "0.1.8",
     "manifest_version": 3,
     "background": {
         "service_worker": "background.js"
@@ -26,11 +26,10 @@
     ],
     "action": {
         "default_icon": {
-            "16": "/images/anya.png",
-            "32": "/images/anya.png",
-            "48": "/images/anya.png",
-            "128": "/images/anya.png"
-        }
+            "16": "/images/anya-16.png"
+        },
+        "default_title": "Click me!",
+        "default_popup": "popup.html"
     },
     "icons": {
         "16": "/images/anya.png",

@@ -7,10 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-ts": "tsc",
     "build": "npm run build-ts",
-    "postbuild": "npm run copyjson && npm run copyimages",
+    "postbuild": "npm run copyjson && npm run copyimages && npm run copyhtml",
     "cleanbuild": "rimraf build",
     "copyjson": "copyfiles -f src/*.json build/",
-    "copyimages": "copyfiles -f src/images/*.png build/images"
+    "copyimages": "copyfiles -f src/images/*.png build/images",
+    "copyhtml": "copyfiles -f src/*.html build/"
   },
   "author": "gegehprast",
   "repository": {

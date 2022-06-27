@@ -1,69 +1,72 @@
-const SHALLTY_WEB = 'https://shallty.moe/';
+const enableRule = (cb: () => void) => {
+    chrome.declarativeNetRequest.updateEnabledRulesets(
+        {
+            enableRulesetIds: ['ruleset_1']
+        },
+        () => {
+            console.log('Rule enabled.')
+            chrome.action.setIcon({ path: { '16': 'images/anya-16.png' } }, () => {
+                console.log(chrome.runtime.lastError)
+            })
+            cb()
+        }
+    )
+}
 
-const clickHandler = function (info: chrome.contextMenus.OnClickData) {
-    let url = info.pageUrl;
+const disableRule = (cb: () => void) => {
+    chrome.declarativeNetRequest.updateEnabledRulesets(
+        {
+            disableRulesetIds: ['ruleset_1']
+        },
+        () => {
+            console.log('Rule disabled.')
+            chrome.action.setIcon({ path: { '16': 'images/anya-off-16.png' } }, () => {
+                console.log(chrome.runtime.lastError)
+            })
+            cb()
+        }
+    )
+}
 
-    if (info.linkUrl) {
-        url = info.linkUrl;
+const reloadPage = (tabId: number, cb: () => void) => {
+    chrome.tabs.reload(tabId, {}, cb)
+}
+
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    console.log(message, sender)
+    switch (message) {
+        case 'enable':
+            enableRule(() => {
+                chrome.runtime.sendMessage('enabled', () => {
+                    console.log(chrome.runtime.lastError)
+                    sendResponse(1)
+                })
+            })
+            break;
+
+        case 'disable':
+            disableRule(() => {
+                chrome.runtime.sendMessage('disabled', () => {
+                    console.log(chrome.runtime.lastError)
+                    sendResponse(1)
+                })
+            })
+            break;
+
+        case 'reload':
+            if (sender.tab) {
+                reloadPage(sender.tab.id, () => {
+                    chrome.runtime.sendMessage('reloaded', () => {
+                        console.log(chrome.runtime.lastError)
+                        sendResponse(1)
+                    })
+                })
+            } else {
+                sendResponse(1)
+            }
+            break;
+    
+        default:
+            break;
     }
-
-    chrome.tabs.create({ 'url': `${SHALLTY_WEB}?shortlink=${encodeURIComponent(url)}&open_in_new_tab=false` });
-}
-
-const onRuleMatchedDebug = (info: chrome.declarativeNetRequest.MatchedRuleInfoDebug) => {
-    console.log('onRuleMatchedDebug', info)
-}
-
-const createContextMenusCallback = function () {
-    console.log('Context created');
-}
-
-const bypass = chrome.contextMenus.create({
-    'id': 'bypass_shortlink',
-    'title': 'Tes Context',
-    'contexts': ['link'],
-}, createContextMenusCallback);
-
-chrome.contextMenus.onClicked.addListener(clickHandler);
-
-chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(onRuleMatchedDebug)
-
-chrome.declarativeNetRequest.getAvailableStaticRuleCount(count => {
-    console.log('getAvailableStaticRuleCount: ', count)
 })
-
-chrome.declarativeNetRequest.getEnabledRulesets(rulesetIds => {
-    console.log('getEnabledRulesets', rulesetIds)
-})
-
-chrome.declarativeNetRequest.isRegexSupported(
-    {
-        isCaseSensitive: false,
-        regex: "(https?:\/\/.*\\.(?:png|jpg)).*"
-    },
-    (result: chrome.declarativeNetRequest.IsRegexSupportedResult) => {
-        console.log(result)
-    }
-)
-
-// @ts-ignore: Unreachable code error
-// chrome.declarativeNetRequest.testMatchOutcome(
-//     {
-//         type: "main_frame",
-//         url: "https://i.imgur.com/ot48acb.jpg&w=1920&q=75"
-//     },
-//     (matchedRule: chrome.declarativeNetRequest.MatchedRule) => {
-//         console.log('testMatchOutcome', matchedRule)
-//     }
-// )
-
-// @ts-ignore: Unreachable code error
-// chrome.declarativeNetRequest.testMatchOutcome(
-//     {
-//         type: "image",
-//         url: "https://i.imgur.com/ot48acb.jpg&w=1920&q=75"
-//     },
-//     (matchedRule: chrome.declarativeNetRequest.MatchedRule) => {
-//         console.log('testMatchOutcome2', matchedRule)
-//     }
-// )

@@ -5,7 +5,7 @@
         "action": {
             "type": "redirect",
             "redirect": {
-                "url": "https://buatsesuatu.dev/android-icon-192x192.png"
+                "url": "https://cdn.shallty.moe/images/CONFIDENTIAL.png"
             }
         },
         "condition": {
