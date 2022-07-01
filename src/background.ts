@@ -4,10 +4,8 @@ const enableRule = (cb: () => void) => {
             enableRulesetIds: ['ruleset_1']
         },
         () => {
-            console.log('Rule enabled.')
-            chrome.action.setIcon({ path: { '16': 'images/anya-16.png' } }, () => {
-                console.log(chrome.runtime.lastError)
-            })
+            chrome.action.setIcon({ path: { '16': 'images/anya-16.png' } })
+
             cb()
         }
     )
@@ -19,54 +17,69 @@ const disableRule = (cb: () => void) => {
             disableRulesetIds: ['ruleset_1']
         },
         () => {
-            console.log('Rule disabled.')
-            chrome.action.setIcon({ path: { '16': 'images/anya-off-16.png' } }, () => {
-                console.log(chrome.runtime.lastError)
-            })
+            chrome.action.setIcon({ path: { '16': 'images/anya-off-16.png' } })
+
             cb()
         }
     )
 }
 
-const reloadPage = (tabId: number, cb: () => void) => {
-    chrome.tabs.reload(tabId, {}, cb)
+const reloadActiveTab = async (cb: () => void) => {
+    const tab = await getCurrentTab()
+
+    chrome.tabs.reload(tab.id)
+    
+    cb()
 }
 
+const getCurrentTab = async (): Promise<chrome.tabs.Tab | undefined> => {
+    let queryOptions = { active: true, lastFocusedWindow: true };
+    let [tab] = await chrome.tabs.query(queryOptions);
+
+    return tab;
+}
+
+chrome.action.setPopup({ popup: 'popup.html' })
+
+chrome.action.onClicked.addListener(function (tab) {
+    // @ts-ignore: Unreachable code error
+    chrome.action.openPopup({ tabId: tab.id })
+})
+
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    console.log(message, sender)
+    if (!sender) {
+        return
+    }
+    
     switch (message) {
         case 'enable':
             enableRule(() => {
-                chrome.runtime.sendMessage('enabled', () => {
-                    console.log(chrome.runtime.lastError)
-                    sendResponse(1)
-                })
+                sendResponse(1)
             })
             break;
 
         case 'disable':
             disableRule(() => {
-                chrome.runtime.sendMessage('disabled', () => {
-                    console.log(chrome.runtime.lastError)
-                    sendResponse(1)
-                })
+                sendResponse(1)
             })
             break;
 
         case 'reload':
-            if (sender.tab) {
-                reloadPage(sender.tab.id, () => {
-                    chrome.runtime.sendMessage('reloaded', () => {
-                        console.log(chrome.runtime.lastError)
-                        sendResponse(1)
-                    })
-                })
-            } else {
+            reloadActiveTab(() => {
                 sendResponse(1)
-            }
+            })
+            break;
+
+        case 'is-enabled':
+            chrome.declarativeNetRequest.getEnabledRulesets(rulesetIds => {
+                sendResponse({ enabled: rulesetIds.length > 0 })
+            })
             break;
     
         default:
+            sendResponse(1)
             break;
     }
+
+    return true
 })

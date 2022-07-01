@@ -2,50 +2,51 @@ const ENABLE_BTN = document.getElementById('enable') as HTMLButtonElement
 const DISABLE_BTN = document.getElementById('disable') as HTMLButtonElement
 const RELOAD_BTN = document.getElementById('reload') as HTMLButtonElement
 
+function showEnableBtn() {
+    ENABLE_BTN.style.display = 'none'
+    DISABLE_BTN.style.display = 'inline-block'
+}
+
+function showDisableBtn() {
+    ENABLE_BTN.style.display = 'inline-block'
+    DISABLE_BTN.style.display = 'none'
+}
+
 function enable(e: MouseEvent) {
     chrome.runtime.sendMessage('enable', (res) => {
-        console.log(chrome.runtime.lastError)
-        console.log(res)
+        if (!chrome.runtime.lastError && res === 1) {
+            showEnableBtn()
+
+            return
+        }
     })
 }
 
 function disable(e: MouseEvent) {
     chrome.runtime.sendMessage('disable', (res) => {
-        console.log(chrome.runtime.lastError)
-        console.log(res)
+        if (!chrome.runtime.lastError && res === 1) {
+            showDisableBtn()
+
+            return
+        }
     })
 }
 
 function reload(e: MouseEvent) {
-    chrome.runtime.sendMessage('reload', (res) => {
-        console.log(chrome.runtime.lastError)
-        console.log(res)
-    })
+    chrome.runtime.sendMessage('reload')
 }
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    switch (message) {
-        case 'enable':
-            ENABLE_BTN.style.display = 'none'
-            DISABLE_BTN.style.display = 'inline-block'
-            sendResponse(1)
-            break;
-
-        case 'disable':
-            ENABLE_BTN.style.display = 'inline-block'
-            DISABLE_BTN.style.display = 'none'
-            sendResponse(1)
-            break;
-
-        case 'reload':
-            console.log('reloaded')
-            sendResponse(1)
-            break;
-
-        default:
-            break;
+chrome.runtime.sendMessage('is-enabled', (res) => {
+    if (chrome.runtime.lastError) {
+        return
     }
-});
+
+    if (res.enabled === true) {
+        showEnableBtn()
+    } else {
+        showDisableBtn()
+    }
+})
 
 if (ENABLE_BTN != null) {
     ENABLE_BTN.addEventListener('click', enable)
