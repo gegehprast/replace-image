@@ -100,18 +100,21 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             break;
 
         case 'what-to-censor':
-            if (!enabled) {
-                sendResponse({ words: [] })
-            }
-            
-            if (censoredWords) {
-                sendResponse({ words: censoredWords })
-            }
+            chrome.declarativeNetRequest.getEnabledRulesets(rulesetIds => {
+                // disabled
+                if (rulesetIds.length === 0) {
+                    sendResponse({ words: [] })
+                }
 
-            fetchWords().then(words => {
-                censoredWords = words
+                if (censoredWords) {
+                    sendResponse({ words: censoredWords })
+                }
 
-                sendResponse({ words: censoredWords })
+                fetchWords().then(words => {
+                    censoredWords = words
+
+                    sendResponse({ words: censoredWords })
+                })
             })
             break;
     
