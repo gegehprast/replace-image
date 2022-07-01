@@ -1,7 +1,7 @@
 {
     "name": "Replace Image",
     "description": "Chromium image replacer.",
-    "version": "0.1.15",
+    "version": "0.1.18",
     "manifest_version": 3,
     "background": {
         "service_worker": "background.js"
@@ -30,10 +30,32 @@
         },
         "default_title": "Setting."
     },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://*/*",
+                "http://*/*"
+            ],
+            "js": [
+                "content-script.js"
+            ]
+        }
+    ],
     "icons": {
         "16": "/images/anya.png",
         "32": "/images/anya.png",
         "48": "/images/anya.png",
         "128": "/images/anya.png"
-    }
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "censored.json"
+            ],
+            "matches": [
+                "https://*/*",
+                "http://*/*"
+            ]
+        }
+    ]
 }

@@ -1,9 +1,14 @@
+const CENSORED = chrome.runtime.getURL('censored.json')
+let censoredWords: string[]
+let enabled = true
+
 const enableRule = (cb: () => void) => {
     chrome.declarativeNetRequest.updateEnabledRulesets(
         {
             enableRulesetIds: ['ruleset_1']
         },
         () => {
+            enabled = true
             chrome.action.setIcon({ path: { '16': 'images/anya-16.png' } })
 
             cb()
@@ -17,6 +22,7 @@ const disableRule = (cb: () => void) => {
             disableRulesetIds: ['ruleset_1']
         },
         () => {
+            enabled = false
             chrome.action.setIcon({ path: { '16': 'images/anya-off-16.png' } })
 
             cb()
@@ -38,6 +44,23 @@ const getCurrentTab = async (): Promise<chrome.tabs.Tab | undefined> => {
 
     return tab;
 }
+
+const fetchWords = (): Promise<string[]> => {
+    return new Promise((resolve, reject) => {
+        fetch(CENSORED)
+            .then((response) => response.json())
+            .then((json) => {
+                resolve(json.words)
+            })
+            .catch(reason => {
+                reject(reason)
+            })
+    })
+}
+
+fetchWords().then(words => {
+    censoredWords = words
+})
 
 chrome.action.setPopup({ popup: 'popup.html' })
 
@@ -73,6 +96,22 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         case 'is-enabled':
             chrome.declarativeNetRequest.getEnabledRulesets(rulesetIds => {
                 sendResponse({ enabled: rulesetIds.length > 0 })
+            })
+            break;
+
+        case 'what-to-censor':
+            if (!enabled) {
+                sendResponse({ words: [] })
+            }
+            
+            if (censoredWords) {
+                sendResponse({ words: censoredWords })
+            }
+
+            fetchWords().then(words => {
+                censoredWords = words
+
+                sendResponse({ words: censoredWords })
             })
             break;
     
